@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Black Pearl — an endless sea</title>
+<meta name="description" content="Sail the Black Pearl across an endless sea. Keep the lantern burning.">
+<meta name="theme-color" content="#0B1622">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <canvas id="world" aria-label="Game"></canvas>
+
+  <!-- HUD -->
+  <div id="hud" hidden>
+    <div class="hud-dist"><b id="h-dist">0</b><span>m</span><em id="h-streak" hidden></em></div>
+    <div class="hud-flame">
+      <div class="flame-row">
+        <img class="hud-diya" src="images/coin.webp" alt="">
+        <div class="track" role="progressbar" aria-label="Lantern" aria-valuemin="0" aria-valuemax="100"><i id="h-flame"></i></div>
+      </div>
+      <div class="status">
+        <span class="st" id="st-shield" hidden title="Rum shield"><img src="images/barrel.webp" alt="Rum shield"></span>
+        <span class="st" id="st-swift" hidden title="Kraken's surge"><img src="images/kraken.webp" alt="Kraken's surge"><u><i></i></u></span>
+        <span class="st" id="st-wish" hidden title="Heart's glow"><img src="images/heart.webp" alt="Heart's glow"><u><i></i></u></span>
+      </div>
+    </div>
+    <button id="btn-pause" class="icon-btn" aria-label="Pause">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="6" y="5" width="4" height="14" fill="currentColor"/><rect x="14" y="5" width="4" height="14" fill="currentColor"/></svg>
+    </button>
+  </div>
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Title -->
+  <section id="screen-title" class="screen" hidden>
+    <div class="panel">
+      <h1 class="logo"><span class="latin">Black Pearl</span></h1>
+      <p class="tagline">One ship, one lantern, and a sea with no end.</p>
+      <div class="actions">
+        <button class="btn primary wide" id="btn-play">Set sail</button>
+        <button class="btn" id="btn-wishes">Wishes</button>
+        <button class="btn" id="btn-how">How to play</button>
+        <button class="btn" id="btn-settings">Settings</button>
+      </div>
+      <div class="meta" id="title-meta"></div>
+      <p class="rotate-hint">Turn your phone sideways for a wider sea.</p>
+    </div>
+  </section>
+
+  <!-- How to play -->
+  <section id="screen-how" class="screen scrim" hidden>
+    <div class="panel wide-panel">
+      <h2>How to play</h2>
+      <div class="scroll">
+        <ul class="how">
+          <li><img src="images/pearl.webp" alt=""><p><strong>Steer across the sea.</strong> Drag up and down anywhere, or use W / S or the arrow keys. The Pearl never stops.</p></li>
+          <li><img src="images/coin.webp" alt=""><p><strong>Cursed Aztec gold feeds your lantern.</strong> The lantern burns down slowly. When night falls, it is also your only light.</p></li>
+          <li><img src="images/wreck_teal.webp" alt=""><p><strong>Wrecks, reefs and tentacles hurt.</strong> Jack the Monkey warns you with a dashed line on the water just before he leaps. Lily pads only slow you down.</p></li>
+          <li><img src="images/barrel.webp" alt=""><p><strong>Rum barrel</strong> blocks one hit.</p></li>
+          <li><img src="images/kraken.webp" alt=""><p><strong>The Kraken</strong> carries you through everything for a few seconds.</p></li>
+          <li><img src="images/heart.webp" alt=""><p><strong>Davy Jones' heart</strong> widens your light and pulls nearby treasure toward you.</p></li>
+        </ul>
+      </div>
+      <div class="actions"><button class="btn primary wide" data-back>Got it</button></div>
+    </div>
+  </section>
+
+  <!-- Wishes -->
+  <section id="screen-wishes" class="screen scrim" hidden>
+    <div class="panel wide-panel">
+      <h2>Wishes</h2>
+      <p class="sub" id="wishes-sub"></p>
+      <div class="scroll"><ul class="wishes" id="wishes-list"></ul></div>
+      <div class="actions"><button class="btn primary wide" data-back>Back</button></div>
+    </div>
+  </section>
+
+  <!-- Settings -->
+  <section id="screen-settings" class="screen scrim" hidden>
+    <div class="panel">
+      <h2>Settings</h2>
+      <div class="scroll">
+        <div class="row"><span>Sound</span><button class="toggle" id="t-sound" role="switch" aria-checked="true" aria-label="Sound"><i></i></button></div>
+        <div class="row" id="row-haptics"><span>Vibration</span><button class="toggle" id="t-haptics" role="switch" aria-checked="true" aria-label="Vibration"><i></i></button></div>
+        <div class="row" id="row-full"><span>Full screen</span><button class="btn small" id="btn-full">Toggle</button></div>
+        <div class="row" id="row-install" hidden><span>Install on this device</span><button class="btn small" id="btn-install">Install</button></div>
+        <div class="row"><span>Saved progress<small id="save-note"></small></span><button class="btn small danger" id="btn-erase">Erase</button></div>
+      </div>
+      <div class="actions"><button class="btn primary wide" data-back>Done</button></div>
+    </div>
+  </section>
+
+  <!-- Pause -->
+  <section id="screen-pause" class="screen scrim" hidden>
+    <div class="panel">
+      <h2>Paused</h2>
+      <div class="actions stack">
+        <button class="btn primary wide" id="btn-resume">Keep sailing</button>
+        <button class="btn wide" id="btn-restart">Start over</button>
+        <button class="btn wide" id="btn-home">Back to shore</button>
+        <button class="btn wide" id="btn-mute">Sound: on</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Game over -->
+  <section id="screen-over" class="screen scrim" hidden>
+    <div class="panel">
+      <h2 class="over-title">The lantern went dark.</h2>
+      <p class="deva-sub">Davy Jones claims the Pearl.</p>
+      <div class="result">
+        <div class="big"><b id="o-dist">0</b><span>m</span></div>
+        <p class="newbest" id="o-new" hidden>A new best.</p>
+        <dl>
+          <div><dt>Gold taken</dt><dd id="o-diyas">0</dd></div>
+          <div><dt>Best</dt><dd id="o-best">0 m</dd></div>
+        </dl>
+        <p class="granted" id="o-granted" hidden></p>
+      </div>
+      <div class="actions stack">
+        <button class="btn primary wide" id="btn-again">Sail again</button>
+        <button class="btn wide" id="btn-over-home">Back to shore</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Confirm -->
+  <div id="fade"></div>
+  <div id="loader"><div class="loader-in"><span class="deva">Black Pearl</span><div class="lbar"><i id="lbar"></i></div><p>Raising the sails…</p></div></div>
+</div>
+
+<script src="js/store.js"></script>
+<script src="js/assets.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
